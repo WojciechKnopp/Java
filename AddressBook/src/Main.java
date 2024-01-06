@@ -5,7 +5,6 @@ public class Main {
 
     static void showMenu(String currentBook) {
         System.out.println("Current address book: " + currentBook);
-        System.out.print("Choose what you'd like to do: ");
         System.out.println("1. Manage Address Books");
         System.out.println("2. Load from file");
         System.out.println("3. Save to file");
@@ -16,6 +15,7 @@ public class Main {
         System.out.println("8. Sort the address book");
         System.out.println("9. Search for a specific entry");
         System.out.println("10. Quit");
+        System.out.print("Choose what you'd like to do: ");
     }
 
     static void showBookMenu() {
@@ -124,13 +124,14 @@ public class Main {
                     System.out.print("Enter the name of the file you want to load: ");
                     String fileName = scanner.nextLine();
                     try{
-                        Scanner fileScanner = new Scanner(new FileReader(fileName));
+                        Scanner fileScanner = new Scanner(new FileReader("Data/" + fileName));
                         while(fileScanner.hasNextLine()) {
                             String line = fileScanner.nextLine();
                             String[] data = line.split(",");
                             Record record = new Record(data[0], data[1], data[2], data[3], data[4], data[5]);
                             addressBook.get(currentBook).addRecord(record);
                         }
+                        System.out.println("Loaded file " + fileName);
                     }catch (Exception e) {
                         System.out.println("File not found");
                     }
