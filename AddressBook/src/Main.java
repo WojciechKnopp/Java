@@ -1,17 +1,29 @@
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 
-    static void showMenu() {
-        System.out.println("1. Load from file");
-        System.out.println("2. Save to file");
-        System.out.println("3. Add entry");
-        System.out.println("4. Print book");
-        System.out.println("5. Remove entry");
-        System.out.println("6. Edit entry");
-        System.out.println("7. Sort the address book");
-        System.out.println("8. Search for a specific entry");
-        System.out.println("9. Quit");
+    static void showMenu(String currentBook) {
+        System.out.println("Current address book: " + currentBook);
+        System.out.print("Choose what you'd like to do: ");
+        System.out.println("1. Manage Address Books");
+        System.out.println("2. Load from file");
+        System.out.println("3. Save to file");
+        System.out.println("4. Add entry");
+        System.out.println("5. Print book");
+        System.out.println("6. Remove entry");
+        System.out.println("7. Edit entry");
+        System.out.println("8. Sort the address book");
+        System.out.println("9. Search for a specific entry");
+        System.out.println("10. Quit");
+    }
+
+    static void showBookMenu() {
+        System.out.println("1. Create a new address book");
+        System.out.println("2. Rename an address book");
+        System.out.println("3. Delete an address book");
+        System.out.println("4. List all address books");
+        System.out.println("5. Switch current address book");
+        System.out.println("6. Go back to main menu");
     }
 
     static void clearScreen() {
@@ -19,34 +31,108 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        int option;
-        AddressBook addressBook = new AddressBook();
+        // initializing
+        SortedMap<String, AddressBook> addressBook = new TreeMap<>();
+        addressBook.put("default", new AddressBook());
         Scanner scanner = new Scanner(System.in);
+        String currentBook = "default";
 
+        int option;
         // program loop
         do{
             clearScreen();
-            showMenu();
-            option = 0;
-            while(option < 1 || option > 9) {
-                System.out.print("Choose what you'd like to do: ");
-                option = scanner.nextLine().charAt(0) - '0';
-            }
-
+            showMenu(currentBook);
+            option = Integer.parseInt(scanner.nextLine());
             switch (option){
                 case 1:
+                    // Managing Address Books
+                    showBookMenu();
+                    int option2 = 0;
+                    while(option2 < 1 || option2 > 6) {
+                        option2 = Integer.parseInt(scanner.nextLine());
+                    }
+                    switch (option2){
+                        case 1:
+                            System.out.println("Create a new address book");
+                            System.out.print("Enter the name of the new address book: ");
+                            String newBookName = scanner.nextLine();
+                            addressBook.put(newBookName, new AddressBook());
+                            System.out.println("Created address book " + newBookName + "and switched to it");
+                            currentBook = newBookName;
+                            break;
+
+                        case 2:
+                            System.out.println("Rename an address book");
+                            System.out.print("Enter the new name of the address book: ");
+                            String newBookName2 = scanner.nextLine();
+                            if(addressBook.containsKey(newBookName2))
+                                System.out.println("Address book already exists");
+                            else {
+                                addressBook.put(newBookName2, addressBook.get(currentBook));
+                                addressBook.remove(currentBook);
+                                currentBook = newBookName2;
+                                System.out.println("Renamed address book to " + newBookName2);
+                            }
+                            break;
+
+                        case 3:
+                            System.out.println("Delete an address book");
+                            System.out.print("Enter the name of the address book you want to delete: ");
+                            String bookName = scanner.nextLine();
+                            if(addressBook.size() > 1)
+                                if(addressBook.containsKey(bookName)) {
+                                    System.out.println("Deleting address book " + bookName);
+                                    addressBook.remove(bookName);
+
+                                    //change current book if it was deleted
+                                    if (currentBook.equals(bookName))
+                                        currentBook = addressBook.firstKey();
+                                }
+                                else
+                                    System.out.println("Address book not found");
+                            else
+                                System.out.println("Cannot delete the only address book");
+                            break;
+
+                        case 4:
+                            System.out.println("List all address books");
+                            for(String book : addressBook.keySet()) {
+                                System.out.println(book);
+                            }
+                            break;
+
+                        case 5:
+                            System.out.println("Switch current address book");
+                            System.out.print("Enter the name of the address book you want to switch to: ");
+                            String bookName2 = scanner.nextLine();
+                            if(addressBook.containsKey(bookName2))
+                                currentBook = bookName2;
+                            else
+                                System.out.println("Address book not found");
+                            break;
+
+                        case 6:
+                            System.out.println("Go back to main menu");
+                            break;
+                    }
+                    break;
+
+                //Back to normal Menu options
+                case 2:
                     System.out.println("Load from file");
                     System.out.println("Not implemented yet");
                     break;
 
-                case 2:
+                case 3:
                     System.out.println("Save to file");
                     System.out.println("Not implemented yet");
                     break;
 
-                case 3:
+                case 4:
                     System.out.println("Add entry");
-                    String firstName, lastName, address, phone, email;
+                    String id, firstName, lastName, address, phone, email;
+                    System.out.print("Enter id: ");
+                    id = scanner.nextLine();
                     System.out.print("Enter first name: ");
                     firstName = scanner.nextLine();
                     System.out.print("Enter last name: ");
@@ -57,44 +143,47 @@ public class Main {
                     phone = scanner.nextLine();
                     System.out.print("Enter email: ");
                     email = scanner.nextLine();
-                    Record record3 = new Record(firstName, lastName, address, phone, email);
-                    addressBook.addRecord(record3);
-                    break;
-
-                case 4:
-                    System.out.println("Print book");
-                    for(Record record4 : addressBook.getRecords()) {
-                        System.out.println(record4);
-                    }
+                    Record record3 = new Record(id, firstName, lastName, address, phone, email);
+                    addressBook.get(currentBook).addRecord(record3);
                     break;
 
                 case 5:
-                    System.out.println("Remove entry");
-                    System.out.println("Not implemented yet");
+                    System.out.println("Print book");
+                    for(Record rec : addressBook.get(currentBook).getRecords()) {
+                        System.out.println(rec);
+                    }
                     break;
-                case 6:
 
-                    System.out.println("Edit entry");
+                case 6:
+                    System.out.println("Remove entry");
                     System.out.println("Not implemented yet");
                     break;
 
                 case 7:
-                    System.out.println("Sort the address book");
+                    System.out.println("Edit entry");
                     System.out.println("Not implemented yet");
                     break;
 
                 case 8:
-                    System.out.println("Search for a specific entry");
+                    System.out.println("Sort the address book");
                     System.out.println("Not implemented yet");
                     break;
 
                 case 9:
+                    System.out.println("Search for a specific entry");
+                    System.out.println("Not implemented yet");
+                    break;
+
+                case 10:
                     System.out.println("Quit");
                     break;
 
+                default:
+                    System.out.println("Invalid option");
+                    break;
             }
             System.out.println("Press enter to continue...");
             scanner.nextLine();
-        }while(option != 9);
+        }while(option != 10);
     }
 }

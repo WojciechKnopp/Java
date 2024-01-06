@@ -1,16 +1,27 @@
 public class Record {
+
+    private String id;
     private String firstName;
     private String lastName;
     private String phoneNumber;
     private String address;
     private String emailAddress;
 
-    public Record(String firstName, String lastName, String phoneNumber, String address, String emailAddress) {
+    public Record(String id, String firstName, String lastName, String phoneNumber, String address, String emailAddress) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.address = address;
         this.emailAddress = emailAddress;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getFirstName() {
