@@ -1,3 +1,4 @@
+import java.io.FileReader;
 import java.util.*;
 
 public class Main {
@@ -120,7 +121,19 @@ public class Main {
                 //Back to normal Menu options
                 case 2:
                     System.out.println("Load from file");
-                    System.out.println("Not implemented yet");
+                    System.out.print("Enter the name of the file you want to load: ");
+                    String fileName = scanner.nextLine();
+                    try{
+                        Scanner fileScanner = new Scanner(new FileReader(fileName));
+                        while(fileScanner.hasNextLine()) {
+                            String line = fileScanner.nextLine();
+                            String[] data = line.split(",");
+                            Record record = new Record(data[0], data[1], data[2], data[3], data[4], data[5]);
+                            addressBook.get(currentBook).addRecord(record);
+                        }
+                    }catch (Exception e) {
+                        System.out.println("File not found");
+                    }
                     break;
 
                 case 3:
