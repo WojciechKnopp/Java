@@ -1,4 +1,12 @@
+// Author: Wojciech Knopp
+// Creation date: 06.01.2024
+// Last modification date: 06.01.2024
+// Description: Program for managing address books
+
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 public class Main {
@@ -47,6 +55,7 @@ public class Main {
             switch (option){
                 case 1:
                     // Managing Address Books
+                    clearScreen();
                     showBookMenu();
                     int option2 = 0;
                     while(option2 < 1 || option2 > 6) {
@@ -120,6 +129,7 @@ public class Main {
 
                 //Back to normal Menu options
                 case 2:
+                    clearScreen();
                     System.out.println("Load from file");
                     System.out.print("Enter the name of the file you want to load: ");
                     String fileName = scanner.nextLine();
@@ -132,17 +142,33 @@ public class Main {
                             addressBook.get(currentBook).addRecord(record);
                         }
                         System.out.println("Loaded file " + fileName);
-                    }catch (Exception e) {
+                    }catch (FileNotFoundException e) {
                         System.out.println("File not found");
                     }
                     break;
 
                 case 3:
+                    clearScreen();
                     System.out.println("Save to file");
-                    System.out.println("Not implemented yet");
+                    System.out.print("Enter the name of the file you want to save to: ");
+                    String fileName2 = scanner.nextLine();
+                    try{
+                        File file = new File("Data/" + fileName2);
+                        file.createNewFile();
+                        System.out.println("Created file " + fileName2);
+                        Formatter formatter = new Formatter("Data/" + fileName2);
+                        for(Record rec : addressBook.get(currentBook).getRecords()) {
+                            formatter.format("%s,%s,%s,%s,%s,%s\n", rec.getId(), rec.getFirstName(), rec.getLastName(), rec.getPhoneNumber(), rec.getAddress(), rec.getEmailAddress());
+                        }
+                        formatter.close();
+                        System.out.println("Saved to file " + fileName2);
+                    } catch (IOException e) {
+                        System.out.println("Error creating file");
+                    }
                     break;
 
                 case 4:
+                    clearScreen();
                     System.out.println("Add entry");
                     String id, firstName, lastName, address, phone, email;
                     System.out.print("Enter id: ");
@@ -162,6 +188,7 @@ public class Main {
                     break;
 
                 case 5:
+                    clearScreen();
                     System.out.println("Print book");
                     for(Record rec : addressBook.get(currentBook).getRecords()) {
                         System.out.println(rec);
@@ -169,30 +196,36 @@ public class Main {
                     break;
 
                 case 6:
+                    clearScreen();
                     System.out.println("Remove entry");
                     System.out.println("Not implemented yet");
                     break;
 
                 case 7:
+                    clearScreen();
                     System.out.println("Edit entry");
                     System.out.println("Not implemented yet");
                     break;
 
                 case 8:
+                    clearScreen();
                     System.out.println("Sort the address book");
                     System.out.println("Not implemented yet");
                     break;
 
                 case 9:
+                    clearScreen();
                     System.out.println("Search for a specific entry");
                     System.out.println("Not implemented yet");
                     break;
 
                 case 10:
+                    clearScreen();
                     System.out.println("Quit");
                     break;
 
                 default:
+                    clearScreen();
                     System.out.println("Invalid option");
                     break;
             }
