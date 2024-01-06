@@ -1,7 +1,7 @@
 // Author: Wojciech Knopp
 // Creation date: 06.01.2024
 // Last modification date: 06.01.2024
-// Description: Program for managing address books
+// Description: Terminal application for managing address books
 
 import java.io.File;
 import java.io.FileNotFoundException;
