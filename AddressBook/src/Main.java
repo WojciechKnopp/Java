@@ -41,8 +41,7 @@ public class Main {
 
     public static void main(String[] args) {
         // initializing
-        SortedMap<String, AddressBook> addressBook = new TreeMap<>();
-        addressBook.put("default", new AddressBook());
+        AddressBook addressBook = new AddressBook();
         Scanner scanner = new Scanner(System.in);
         String currentBook = "default";
         String dataPath = "Data";
@@ -65,61 +64,61 @@ public class Main {
                     switch (option2){
                         case 1:
                             System.out.println("Create a new address book");
-                            System.out.print("Enter the name of the new address book: ");
-                            String newBookName = scanner.nextLine();
-                            addressBook.put(newBookName, new AddressBook());
-                            System.out.println("Created address book " + newBookName + "and switched to it");
-                            currentBook = newBookName;
+//                            System.out.print("Enter the name of the new address book: ");
+//                            String newBookName = scanner.nextLine();
+//                            addressBook.put(newBookName, new AddressBook());
+//                            System.out.println("Created address book " + newBookName + "and switched to it");
+//                            currentBook = newBookName;
                             break;
 
                         case 2:
                             System.out.println("Rename an address book");
-                            System.out.print("Enter the new name of the address book: ");
-                            String newBookName2 = scanner.nextLine();
-                            if(addressBook.containsKey(newBookName2))
-                                System.out.println("Address book already exists");
-                            else {
-                                addressBook.put(newBookName2, addressBook.get(currentBook));
-                                addressBook.remove(currentBook);
-                                currentBook = newBookName2;
-                                System.out.println("Renamed address book to " + newBookName2);
-                            }
+//                            System.out.print("Enter the new name of the address book: ");
+//                            String newBookName2 = scanner.nextLine();
+//                            if(addressBook.containsKey(newBookName2))
+//                                System.out.println("Address book already exists");
+//                            else {
+//                                addressBook.put(newBookName2, addressBook.get(currentBook));
+//                                addressBook.remove(currentBook);
+//                                currentBook = newBookName2;
+//                                System.out.println("Renamed address book to " + newBookName2);
+//                            }
                             break;
 
                         case 3:
                             System.out.println("Delete an address book");
-                            System.out.print("Enter the name of the address book you want to delete: ");
-                            String bookName = scanner.nextLine();
-                            if(addressBook.size() > 1)
-                                if(addressBook.containsKey(bookName)) {
-                                    System.out.println("Deleting address book " + bookName);
-                                    addressBook.remove(bookName);
-
-                                    //change current book if it was deleted
-                                    if (currentBook.equals(bookName))
-                                        currentBook = addressBook.firstKey();
-                                }
-                                else
-                                    System.out.println("Address book not found");
-                            else
-                                System.out.println("Cannot delete the only address book");
+//                            System.out.print("Enter the name of the address book you want to delete: ");
+//                            String bookName = scanner.nextLine();
+//                            if(addressBook.size() > 1)
+//                                if(addressBook.containsKey(bookName)) {
+//                                    System.out.println("Deleting address book " + bookName);
+//                                    addressBook.remove(bookName);
+//
+//                                    //change current book if it was deleted
+//                                    if (currentBook.equals(bookName))
+//                                        currentBook = addressBook.firstKey();
+//                                }
+//                                else
+//                                    System.out.println("Address book not found");
+//                            else
+//                                System.out.println("Cannot delete the only address book");
                             break;
 
                         case 4:
                             System.out.println("List all address books");
-                            for(String book : addressBook.keySet()) {
-                                System.out.println(book);
-                            }
+//                            for(String book : addressBook.keySet()) {
+//                                System.out.println(book);
+//                            }
                             break;
 
                         case 5:
                             System.out.println("Switch current address book");
-                            System.out.print("Enter the name of the address book you want to switch to: ");
-                            String bookName2 = scanner.nextLine();
-                            if(addressBook.containsKey(bookName2))
-                                currentBook = bookName2;
-                            else
-                                System.out.println("Address book not found");
+//                            System.out.print("Enter the name of the address book you want to switch to: ");
+//                            String bookName2 = scanner.nextLine();
+//                            if(addressBook.containsKey(bookName2))
+//                                currentBook = bookName2;
+//                            else
+//                                System.out.println("Address book not found");
                             break;
 
                         case 6:
@@ -140,7 +139,7 @@ public class Main {
                             String line = fileScanner.nextLine();
                             String[] data = line.split(",");
                             Record record = new Record(data[0], data[1], data[2], data[3], data[4], data[5]);
-                            addressBook.get(currentBook).addRecord(record);
+                            addressBook.addRecord(record);
                         }
                         System.out.println("Loaded file " + fileName);
                     }catch (FileNotFoundException e) {
@@ -158,7 +157,7 @@ public class Main {
                         if(file.createNewFile()) {
                             System.out.println("Created file " + fileName2);
                             Formatter formatter = new Formatter(dataPath + "/" + fileName2);
-                            for (Record rec : addressBook.get(currentBook).getRecords()) {
+                            for (Record rec : addressBook.getRecords()) {
                                 formatter.format("%s,%s,%s,%s,%s,%s\n", rec.getId(), rec.getFirstName(), rec.getLastName(), rec.getPhoneNumber(), rec.getAddress(), rec.getEmailAddress());
                             }
                             formatter.close();
@@ -188,14 +187,14 @@ public class Main {
                     System.out.print("Enter email: ");
                     email = scanner.nextLine();
                     Record record3 = new Record(id, firstName, lastName, address, phone, email);
-                    addressBook.get(currentBook).addRecord(record3);
+                    addressBook.addRecord(record3);
                     break;
 
                 case 5:
                     clearScreen();
                     System.out.println("Print book");
-                    for(Record rec : addressBook.get(currentBook).getRecords()) {
-                        System.out.println(rec);
+                    for(Record rec : addressBook.getRecords()) {
+                        System.out.println(rec.getId() + " " + rec.getFirstName() + " " + rec.getLastName() + " " + rec.getPhoneNumber() + " " + rec.getAddress() + " " + rec.getEmailAddress());
                     }
                     break;
 
