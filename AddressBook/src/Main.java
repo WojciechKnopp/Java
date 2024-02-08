@@ -1,6 +1,6 @@
 // Author: Wojciech Knopp
 // Creation date: 06.01.2024
-// Last modification date: 06.01.2024
+// Last modification date: 08.02.2024
 // Description: Terminal application for managing address books
 
 import java.io.File;
@@ -45,6 +45,7 @@ public class Main {
         addressBook.put("default", new AddressBook());
         Scanner scanner = new Scanner(System.in);
         String currentBook = "default";
+        String dataPath = "Data";
 
         int option;
         // program loop
@@ -134,7 +135,7 @@ public class Main {
                     System.out.print("Enter the name of the file you want to load: ");
                     String fileName = scanner.nextLine();
                     try{
-                        Scanner fileScanner = new Scanner(new FileReader("Data/" + fileName));
+                        Scanner fileScanner = new Scanner(new FileReader(dataPath + "/" + fileName));
                         while(fileScanner.hasNextLine()) {
                             String line = fileScanner.nextLine();
                             String[] data = line.split(",");
@@ -153,15 +154,18 @@ public class Main {
                     System.out.print("Enter the name of the file you want to save to: ");
                     String fileName2 = scanner.nextLine();
                     try{
-                        File file = new File("Data/" + fileName2);
-                        file.createNewFile();
-                        System.out.println("Created file " + fileName2);
-                        Formatter formatter = new Formatter("Data/" + fileName2);
-                        for(Record rec : addressBook.get(currentBook).getRecords()) {
-                            formatter.format("%s,%s,%s,%s,%s,%s\n", rec.getId(), rec.getFirstName(), rec.getLastName(), rec.getPhoneNumber(), rec.getAddress(), rec.getEmailAddress());
+                        File file = new File(dataPath + "/" + fileName2);
+                        if(file.createNewFile()) {
+                            System.out.println("Created file " + fileName2);
+                            Formatter formatter = new Formatter(dataPath + "/" + fileName2);
+                            for (Record rec : addressBook.get(currentBook).getRecords()) {
+                                formatter.format("%s,%s,%s,%s,%s,%s\n", rec.getId(), rec.getFirstName(), rec.getLastName(), rec.getPhoneNumber(), rec.getAddress(), rec.getEmailAddress());
+                            }
+                            formatter.close();
+                            System.out.println("Saved to file " + fileName2);
                         }
-                        formatter.close();
-                        System.out.println("Saved to file " + fileName2);
+                        else
+                            System.out.println("File already exists");
                     } catch (IOException e) {
                         System.out.println("Error creating file");
                     }
