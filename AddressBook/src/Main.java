@@ -39,6 +39,40 @@ public class Main {
         System.out.println(System.lineSeparator().repeat(50));
     }
 
+    static void loadBook(AddressBook addressBook, String fileName) {
+        try{
+            Scanner fileScanner = new Scanner(new FileReader(fileName));
+            while(fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                String[] data = line.split(",");
+                Record record = new Record(data[0], data[1], data[2], data[3], data[4], data[5]);
+                addressBook.addRecord(record);
+            }
+            System.out.println("Loaded file " + fileName);
+        }catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        }
+    }
+
+    static void saveBook(AddressBook addressBook, String fileName) {
+        try{
+            File file = new File(fileName);
+            if(file.createNewFile()) {
+                System.out.println("Created file " + fileName);
+                Formatter formatter = new Formatter(fileName);
+                for (Record rec : addressBook.getRecords()) {
+                    formatter.format("%s,%s,%s,%s,%s,%s\n", rec.getId(), rec.getFirstName(), rec.getLastName(), rec.getPhoneNumber(), rec.getAddress(), rec.getEmailAddress());
+                }
+                formatter.close();
+                System.out.println("Saved to file " + fileName);
+            }
+            else
+                System.out.println("File already exists");
+        } catch (IOException e) {
+            System.out.println("Error creating file");
+        }
+    }
+
     public static void main(String[] args) {
         // initializing
         AddressBook addressBook = new AddressBook();
@@ -133,18 +167,7 @@ public class Main {
                     System.out.println("Load from file");
                     System.out.print("Enter the name of the file you want to load: ");
                     String fileName = scanner.nextLine();
-                    try{
-                        Scanner fileScanner = new Scanner(new FileReader(dataPath + "/" + fileName));
-                        while(fileScanner.hasNextLine()) {
-                            String line = fileScanner.nextLine();
-                            String[] data = line.split(",");
-                            Record record = new Record(data[0], data[1], data[2], data[3], data[4], data[5]);
-                            addressBook.addRecord(record);
-                        }
-                        System.out.println("Loaded file " + fileName);
-                    }catch (FileNotFoundException e) {
-                        System.out.println("File not found");
-                    }
+                    loadBook(addressBook, dataPath + "/" + fileName);
                     break;
 
                 case 3:
@@ -152,22 +175,7 @@ public class Main {
                     System.out.println("Save to file");
                     System.out.print("Enter the name of the file you want to save to: ");
                     String fileName2 = scanner.nextLine();
-                    try{
-                        File file = new File(dataPath + "/" + fileName2);
-                        if(file.createNewFile()) {
-                            System.out.println("Created file " + fileName2);
-                            Formatter formatter = new Formatter(dataPath + "/" + fileName2);
-                            for (Record rec : addressBook.getRecords()) {
-                                formatter.format("%s,%s,%s,%s,%s,%s\n", rec.getId(), rec.getFirstName(), rec.getLastName(), rec.getPhoneNumber(), rec.getAddress(), rec.getEmailAddress());
-                            }
-                            formatter.close();
-                            System.out.println("Saved to file " + fileName2);
-                        }
-                        else
-                            System.out.println("File already exists");
-                    } catch (IOException e) {
-                        System.out.println("Error creating file");
-                    }
+                    saveBook(addressBook, dataPath + "/" + fileName2);
                     break;
 
                 case 4:
