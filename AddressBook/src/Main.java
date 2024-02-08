@@ -66,19 +66,86 @@ public class Main {
                 formatter.close();
                 System.out.println("Saved to file " + fileName);
             }
-            else
-                System.out.println("File already exists");
+            else{
+                //rewrite the file
+                Formatter formatter = new Formatter(fileName);
+                for (Record rec : addressBook.getRecords()) {
+                    formatter.format("%s,%s,%s,%s,%s,%s\n", rec.getId(), rec.getFirstName(), rec.getLastName(), rec.getPhoneNumber(), rec.getAddress(), rec.getEmailAddress());
+                }
+                formatter.close();
+                System.out.println("Saved to file " + fileName);
+            }
         } catch (IOException e) {
             System.out.println("Error creating file");
         }
     }
 
+    static Optional<String> listBooks(String dataPath) {
+        File folder = new File(dataPath);
+        File[] listOfFiles = folder.listFiles();
+        if(listOfFiles == null){
+            return Optional.empty();
+        }
+        StringBuilder books = new StringBuilder();
+        for(File file : listOfFiles) {
+            if(file.isFile()) {
+                books.append(file.getName()).append("\n");
+            }
+        }
+        return Optional.of(books.toString());
+    }
+
+    static String chooseBook(AddressBook addressBook, String dataPath) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Choose the address book from:");
+        Optional<String> books = listBooks(dataPath);
+        if(books.isEmpty()) {
+            System.out.println("No address books found");
+            return null;
+        }
+        System.out.println(books.get());
+        String bookName = scanner.nextLine();
+        //check if file exists
+        File file = new File(dataPath + "/" + bookName);
+        if(file.exists()) {
+            loadBook(addressBook, dataPath + "/" + bookName);
+            return bookName;
+        }
+        else
+            System.out.println("Address book not found");
+        return null;
+    }
+
+
     public static void main(String[] args) {
         // initializing
         AddressBook addressBook = new AddressBook();
         Scanner scanner = new Scanner(System.in);
-        String currentBook = "default";
+        String currentBook = null;
         String dataPath = "Data";
+
+        //choose the address book
+        currentBook = chooseBook(addressBook, dataPath);
+        //create a new address book if none exists or none was chosen
+        if(currentBook == null) {
+            System.out.println("Creating a new address book");
+            System.out.print("Enter the name of the new address book: ");
+            String newBookName = scanner.nextLine();
+            File newBook = new File(dataPath + "/" + newBookName);
+            try {
+                if(newBook.createNewFile()) {
+                    System.out.println("Created address book " + newBookName);
+                    currentBook = newBookName;
+                }
+                else {
+                    System.out.println("Address book already exists");
+                    currentBook = newBookName;
+                    loadBook(addressBook, dataPath + "/" + currentBook);
+                }
+            } catch (IOException e) {
+                System.out.println("Error creating address book");
+            }
+        }
 
         int option;
         // program loop
@@ -98,61 +165,97 @@ public class Main {
                     switch (option2){
                         case 1:
                             System.out.println("Create a new address book");
-//                            System.out.print("Enter the name of the new address book: ");
-//                            String newBookName = scanner.nextLine();
-//                            addressBook.put(newBookName, new AddressBook());
-//                            System.out.println("Created address book " + newBookName + "and switched to it");
-//                            currentBook = newBookName;
+                            System.out.print("Enter the name of the new address book: ");
+                            String newBookName = scanner.nextLine();
+                            File newBook = new File(dataPath + "/" + newBookName);
+                            try {
+                                if(newBook.createNewFile()) {
+                                    System.out.println("Created address book " + newBookName + " and switched to it");
+                                    saveBook(addressBook, dataPath + "/" + currentBook);
+                                    loadBook(addressBook, dataPath + "/" + newBookName);
+                                    currentBook = newBookName;
+                                }
+                                else
+                                    System.out.println("Address book already exists");
+                            } catch (IOException e) {
+                                System.out.println("Error creating address book");
+                            }
                             break;
 
                         case 2:
-                            System.out.println("Rename an address book");
-//                            System.out.print("Enter the new name of the address book: ");
-//                            String newBookName2 = scanner.nextLine();
-//                            if(addressBook.containsKey(newBookName2))
-//                                System.out.println("Address book already exists");
-//                            else {
-//                                addressBook.put(newBookName2, addressBook.get(currentBook));
-//                                addressBook.remove(currentBook);
-//                                currentBook = newBookName2;
-//                                System.out.println("Renamed address book to " + newBookName2);
-//                            }
+                            System.out.println("Rename current address book: '" + currentBook + "'");
+                            File renamedBook = new File(dataPath + "/" + currentBook);
+                            System.out.print("Enter the new name of the address book: ");
+                            String newBookName2 = scanner.nextLine();
+                            if(renamedBook.renameTo(new File(dataPath + "/" + newBookName2))) {
+                                System.out.println("Renamed address book to " + newBookName2);
+                                currentBook = newBookName2;
+                            }
+                            else
+                                System.out.println("Error renaming address book");
                             break;
 
                         case 3:
                             System.out.println("Delete an address book");
-//                            System.out.print("Enter the name of the address book you want to delete: ");
-//                            String bookName = scanner.nextLine();
-//                            if(addressBook.size() > 1)
-//                                if(addressBook.containsKey(bookName)) {
-//                                    System.out.println("Deleting address book " + bookName);
-//                                    addressBook.remove(bookName);
-//
-//                                    //change current book if it was deleted
-//                                    if (currentBook.equals(bookName))
-//                                        currentBook = addressBook.firstKey();
-//                                }
-//                                else
-//                                    System.out.println("Address book not found");
-//                            else
-//                                System.out.println("Cannot delete the only address book");
+                            System.out.print("Enter the name of the address book you want to delete: ");
+                            String bookName = scanner.nextLine();
+                            //find all files in dataPath
+                            File dataFolder = new File(dataPath);
+                            File[] listOfAllFiles = dataFolder.listFiles();
+                            if(listOfAllFiles != null) {
+                                if(listOfAllFiles.length > 1) {
+                                    for(File file : listOfAllFiles) {
+                                        if(file.getName().equals(bookName)) {
+                                            System.out.println("Deleting address book " + bookName);
+                                            if(file.delete()) {
+                                                if (currentBook.equals(bookName))
+                                                    if (listOfAllFiles[0].getName().equals(bookName))
+                                                        currentBook = listOfAllFiles[1].getName();
+                                                    else
+                                                        currentBook = listOfAllFiles[0].getName();
+                                                break;
+                                            }
+                                            else
+                                                System.out.println("Error deleting address book");
+                                        }
+                                    }
+                                }
+                                else
+                                    System.out.println("Cannot delete the only address book");
+                            }
+                            else
+                                System.out.println("No address books found");
                             break;
 
                         case 4:
                             System.out.println("List all address books");
-//                            for(String book : addressBook.keySet()) {
-//                                System.out.println(book);
-//                            }
+                            //find all files in dataPath
+                            File folder = new File(dataPath);
+                            File[] listOfFiles = folder.listFiles();
+                            if(listOfFiles == null){
+                                System.out.println("No address books found");
+                                break;
+                            }
+                            for(File file : listOfFiles) {
+                                if(file.isFile()) {
+                                    System.out.println(file.getName());
+                                }
+                            }
                             break;
 
                         case 5:
                             System.out.println("Switch current address book");
-//                            System.out.print("Enter the name of the address book you want to switch to: ");
-//                            String bookName2 = scanner.nextLine();
-//                            if(addressBook.containsKey(bookName2))
-//                                currentBook = bookName2;
-//                            else
-//                                System.out.println("Address book not found");
+                            System.out.print("Enter the name of the address book you want to switch to: ");
+                            String bookName2 = scanner.nextLine();
+                            //check if file exists
+                            File file = new File(dataPath + "/" + bookName2);
+                            if(file.exists()) {
+                                saveBook(addressBook, dataPath + "/" + currentBook);
+                                loadBook(addressBook, dataPath + "/" + bookName2);
+                                currentBook = bookName2;
+                            }
+                            else
+                                System.out.println("Address book not found");
                             break;
 
                         case 6:
