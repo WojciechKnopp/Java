@@ -12,6 +12,16 @@ public class AddressBook {
         return true;
     }
 
+    public boolean removeRecordById(int id) {
+        for (Record record : records) {
+            if (record.getId() == id) {
+                records.remove(record);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public ArrayList<Record> getRecords() {
         return records;
     }

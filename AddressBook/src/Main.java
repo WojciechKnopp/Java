@@ -156,7 +156,6 @@ public class Main {
         else
             lastId = addressBook.getRecords().get(addressBook.getRecords().size() - 1).getId();
 
-
         int option;
         // program loop
         do{
@@ -277,22 +276,10 @@ public class Main {
                     break;
 
                 //Back to normal Menu options
-//                case 2:
-//                    clearScreen();
-//                    System.out.println("Load from file");
-//                    System.out.print("Enter the name of the file you want to load: ");
-//                    String fileName = scanner.nextLine();
-//                    lastId = loadBook(addressBook, dataPath + "/" + fileName);
-//                    if(lastId == -1)
-//                        lastId = addressBook.getRecords().get(addressBook.getRecords().size() - 1).getId();
-//                    break;
-
                 case 2:
                     clearScreen();
-                    System.out.println("Save to file");
-                    System.out.print("Enter the name of the file you want to save to: ");
-                    String fileName2 = scanner.nextLine();
-                    saveBook(addressBook, dataPath + "/" + fileName2);
+                    System.out.println("Saving address book...");
+                    saveBook(addressBook, dataPath + "/" + currentBookName);
                     break;
 
                 case 3:
@@ -311,7 +298,12 @@ public class Main {
                     System.out.print("Enter email: ");
                     email = scanner.nextLine();
                     Record record3 = new Record(id, firstName, lastName, address, phone, email);
-                    addressBook.addRecord(record3);
+                    if(addressBook.addRecord(record3))
+                        System.out.println("Record added");
+                    else{
+                        System.out.println("Error adding record");
+                        lastId--;
+                    }
                     break;
 
                 case 4:
@@ -325,7 +317,16 @@ public class Main {
                 case 5:
                     clearScreen();
                     System.out.println("Remove entry");
-                    System.out.println("Not implemented yet");
+                    System.out.print("Enter the id of the record you want to remove: ");
+                    int id2 = Integer.parseInt(scanner.nextLine());
+                    if(addressBook.removeRecordById(id2)){
+                        System.out.println("Record removed");
+                        //if the last record was removed, decrement lastId
+                        if(id2 == lastId)
+                            lastId--;
+                    }
+                    else
+                        System.out.println("Record not found");
                     break;
 
                 case 6:
