@@ -9,13 +9,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+import static java.lang.System.exit;
+
 public class Main {
 
     static void showMenu(String currentBook) {
         System.out.println("Current address book: " + currentBook);
         System.out.println("1. Manage Address Books");
-        System.out.println("2. Load from file");
-        System.out.println("3. Save to file");
+        System.out.println("2. Load Book");
+        System.out.println("3. Save Book");
         System.out.println("4. Add entry");
         System.out.println("5. Print book");
         System.out.println("6. Remove entry");
@@ -39,19 +41,21 @@ public class Main {
         System.out.println(System.lineSeparator().repeat(50));
     }
 
-    static void loadBook(AddressBook addressBook, String fileName) {
+    static int loadBook(AddressBook addressBook, String fileName) {
         try{
             Scanner fileScanner = new Scanner(new FileReader(fileName));
             while(fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine();
                 String[] data = line.split(",");
-                Record record = new Record(data[0], data[1], data[2], data[3], data[4], data[5]);
+                Record record = new Record(Integer.parseInt(data[0]), data[1], data[2], data[3], data[4], data[5]);
                 addressBook.addRecord(record);
             }
             System.out.println("Loaded file " + fileName);
+            return addressBook.getRecords().get(addressBook.getRecords().size() - 1).getId();
         }catch (FileNotFoundException e) {
             System.out.println("File not found");
         }
+        return -1;
     }
 
     static void saveBook(AddressBook addressBook, String fileName) {
@@ -95,13 +99,13 @@ public class Main {
         return Optional.of(books.toString());
     }
 
-    static String chooseBook(AddressBook addressBook, String dataPath) {
+    static Optional<String> chooseBook(AddressBook addressBook, String dataPath ) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Choose the address book from:");
         Optional<String> books = listBooks(dataPath);
         if(books.isEmpty()) {
             System.out.println("No address books found");
-            return null;
+            return Optional.empty();
         }
         System.out.println(books.get());
         String bookName = scanner.nextLine();
@@ -109,11 +113,11 @@ public class Main {
         File file = new File(dataPath + "/" + bookName);
         if(file.exists()) {
             loadBook(addressBook, dataPath + "/" + bookName);
-            return bookName;
+            return Optional.of(bookName);
         }
         else
             System.out.println("Address book not found");
-        return null;
+        return Optional.empty();
     }
 
 
@@ -121,13 +125,15 @@ public class Main {
         // initializing
         AddressBook addressBook = new AddressBook();
         Scanner scanner = new Scanner(System.in);
-        String currentBook = null;
+        //index of the last record in the address book
+        int lastId = 0;
+        String currentBookName;
         String dataPath = "Data";
 
         //choose the address book
-        currentBook = chooseBook(addressBook, dataPath);
+        currentBookName = chooseBook(addressBook, dataPath).orElse(null);
         //create a new address book if none exists or none was chosen
-        if(currentBook == null) {
+        if(currentBookName == null) {
             System.out.println("Creating a new address book");
             System.out.print("Enter the name of the new address book: ");
             String newBookName = scanner.nextLine();
@@ -135,23 +141,28 @@ public class Main {
             try {
                 if(newBook.createNewFile()) {
                     System.out.println("Created address book " + newBookName);
-                    currentBook = newBookName;
+                    currentBookName = newBookName;
                 }
                 else {
                     System.out.println("Address book already exists");
-                    currentBook = newBookName;
-                    loadBook(addressBook, dataPath + "/" + currentBook);
+                    currentBookName = newBookName;
+                    lastId = loadBook(addressBook, dataPath + "/" + currentBookName);
                 }
             } catch (IOException e) {
                 System.out.println("Error creating address book");
+                exit(1);
             }
         }
+        else
+            lastId = addressBook.getRecords().get(addressBook.getRecords().size() - 1).getId();
+
 
         int option;
         // program loop
         do{
             clearScreen();
-            showMenu(currentBook);
+            System.out.println(lastId);
+            showMenu(currentBookName);
             option = Integer.parseInt(scanner.nextLine());
             switch (option){
                 case 1:
@@ -171,9 +182,10 @@ public class Main {
                             try {
                                 if(newBook.createNewFile()) {
                                     System.out.println("Created address book " + newBookName + " and switched to it");
-                                    saveBook(addressBook, dataPath + "/" + currentBook);
-                                    loadBook(addressBook, dataPath + "/" + newBookName);
-                                    currentBook = newBookName;
+                                    saveBook(addressBook, dataPath + "/" + currentBookName);
+//                                    lastId = loadBook(addressBook, dataPath + "/" + newBookName);
+                                    lastId = 0;
+                                    currentBookName = newBookName;
                                 }
                                 else
                                     System.out.println("Address book already exists");
@@ -183,13 +195,13 @@ public class Main {
                             break;
 
                         case 2:
-                            System.out.println("Rename current address book: '" + currentBook + "'");
-                            File renamedBook = new File(dataPath + "/" + currentBook);
+                            System.out.println("Rename current address book: '" + currentBookName + "'");
+                            File renamedBook = new File(dataPath + "/" + currentBookName);
                             System.out.print("Enter the new name of the address book: ");
                             String newBookName2 = scanner.nextLine();
                             if(renamedBook.renameTo(new File(dataPath + "/" + newBookName2))) {
                                 System.out.println("Renamed address book to " + newBookName2);
-                                currentBook = newBookName2;
+                                currentBookName = newBookName2;
                             }
                             else
                                 System.out.println("Error renaming address book");
@@ -208,11 +220,15 @@ public class Main {
                                         if(file.getName().equals(bookName)) {
                                             System.out.println("Deleting address book " + bookName);
                                             if(file.delete()) {
-                                                if (currentBook.equals(bookName))
-                                                    if (listOfAllFiles[0].getName().equals(bookName))
-                                                        currentBook = listOfAllFiles[1].getName();
-                                                    else
-                                                        currentBook = listOfAllFiles[0].getName();
+                                                if(currentBookName.equals(bookName))
+                                                    if(listOfAllFiles[0].getName().equals(bookName)){
+                                                        currentBookName = listOfAllFiles[1].getName();
+                                                        lastId = loadBook(addressBook, dataPath + "/" + currentBookName);
+                                                    }
+                                                    else{
+                                                        currentBookName = listOfAllFiles[0].getName();
+                                                        lastId = loadBook(addressBook, dataPath + "/" + currentBookName);
+                                                    }
                                                 break;
                                             }
                                             else
@@ -244,18 +260,21 @@ public class Main {
                             break;
 
                         case 5:
+//                            System.out.println("Switch current address book");
+//                            System.out.print("Enter the name of the address book you want to switch to: ");
+//                            String bookName2 = scanner.nextLine();
+//                            //check if file exists
+//                            File file = new File(dataPath + "/" + bookName2);
+//                            if(file.exists()) {
+//                                saveBook(addressBook, dataPath + "/" + currentBookName);
+//                                lastId = loadBook(addressBook, dataPath + "/" + bookName2);
+//                                currentBookName = bookName2;
+//                            }
+//                            else
+//                                System.out.println("Address book not found");
                             System.out.println("Switch current address book");
-                            System.out.print("Enter the name of the address book you want to switch to: ");
-                            String bookName2 = scanner.nextLine();
-                            //check if file exists
-                            File file = new File(dataPath + "/" + bookName2);
-                            if(file.exists()) {
-                                saveBook(addressBook, dataPath + "/" + currentBook);
-                                loadBook(addressBook, dataPath + "/" + bookName2);
-                                currentBook = bookName2;
-                            }
-                            else
-                                System.out.println("Address book not found");
+                            saveBook(addressBook, dataPath + "/" + currentBookName);
+                            currentBookName = chooseBook(addressBook, dataPath).orElse(currentBookName);
                             break;
 
                         case 6:
@@ -270,7 +289,7 @@ public class Main {
                     System.out.println("Load from file");
                     System.out.print("Enter the name of the file you want to load: ");
                     String fileName = scanner.nextLine();
-                    loadBook(addressBook, dataPath + "/" + fileName);
+                    lastId = loadBook(addressBook, dataPath + "/" + fileName);
                     break;
 
                 case 3:
@@ -284,9 +303,8 @@ public class Main {
                 case 4:
                     clearScreen();
                     System.out.println("Add entry");
-                    String id, firstName, lastName, address, phone, email;
-                    System.out.print("Enter id: ");
-                    id = scanner.nextLine();
+                    String firstName, lastName, address, phone, email;
+                    int id = ++lastId;
                     System.out.print("Enter first name: ");
                     firstName = scanner.nextLine();
                     System.out.print("Enter last name: ");
@@ -336,6 +354,8 @@ public class Main {
                 case 10:
                     clearScreen();
                     System.out.println("Quit");
+                    System.out.println("Saving the address book...");
+                    saveBook(addressBook, dataPath + "/" + currentBookName);
                     break;
 
                 default:

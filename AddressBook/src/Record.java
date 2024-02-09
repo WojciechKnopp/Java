@@ -1,13 +1,13 @@
 public class Record {
 
-    private String id;
+    private int id;
     private String firstName;
     private String lastName;
     private String phoneNumber;
     private String address;
     private String emailAddress;
 
-    public Record(String id, String firstName, String lastName, String phoneNumber, String address, String emailAddress) {
+    public Record(int id, String firstName, String lastName, String phoneNumber, String address, String emailAddress) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -16,11 +16,11 @@ public class Record {
         this.emailAddress = emailAddress;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
