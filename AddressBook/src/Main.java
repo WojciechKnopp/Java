@@ -1,6 +1,6 @@
 // Author: Wojciech Knopp
 // Creation date: 06.01.2024
-// Last modification date: 08.02.2024
+// Last modification date: 09.02.2024
 // Description: Terminal application for managing address books
 
 import java.io.File;
@@ -16,15 +16,14 @@ public class Main {
     static void showMenu(String currentBook) {
         System.out.println("Current address book: " + currentBook);
         System.out.println("1. Manage Address Books");
-        System.out.println("2. Load Book");
-        System.out.println("3. Save Book");
-        System.out.println("4. Add entry");
-        System.out.println("5. Print book");
-        System.out.println("6. Remove entry");
-        System.out.println("7. Edit entry");
-        System.out.println("8. Sort the address book");
-        System.out.println("9. Search for a specific entry");
-        System.out.println("10. Quit");
+        System.out.println("2. Save Book");
+        System.out.println("3. Add entry");
+        System.out.println("4. Print book");
+        System.out.println("5. Remove entry");
+        System.out.println("6. Edit entry");
+        System.out.println("7. Sort the address book");
+        System.out.println("8. Search for a specific entry");
+        System.out.println("9. Quit");
         System.out.print("Choose what you'd like to do: ");
     }
 
@@ -261,22 +260,9 @@ public class Main {
                             break;
 
                         case 5:
-//                            System.out.println("Switch current address book");
-//                            System.out.print("Enter the name of the address book you want to switch to: ");
-//                            String bookName2 = scanner.nextLine();
-//                            //check if file exists
-//                            File file = new File(dataPath + "/" + bookName2);
-//                            if(file.exists()) {
-//                                saveBook(addressBook, dataPath + "/" + currentBookName);
-//                                lastId = loadBook(addressBook, dataPath + "/" + bookName2);
-//                                currentBookName = bookName2;
-//                            }
-//                            else
-//                                System.out.println("Address book not found");
                             clearScreen();
                             System.out.println("Switch current address book");
                             saveBook(addressBook, dataPath + "/" + currentBookName);
-//                            currentBookName = chooseBook(addressBook, dataPath).orElse(currentBookName);
                             String bookName2 = chooseBook(addressBook, dataPath).orElse(currentBookName);
                             if(!bookName2.equals(currentBookName)) {
                                 currentBookName = bookName2;
@@ -291,17 +277,17 @@ public class Main {
                     break;
 
                 //Back to normal Menu options
-                case 2:
-                    clearScreen();
-                    System.out.println("Load from file");
-                    System.out.print("Enter the name of the file you want to load: ");
-                    String fileName = scanner.nextLine();
-                    lastId = loadBook(addressBook, dataPath + "/" + fileName);
-                    if(lastId == -1)
-                        lastId = addressBook.getRecords().get(addressBook.getRecords().size() - 1).getId();
-                    break;
+//                case 2:
+//                    clearScreen();
+//                    System.out.println("Load from file");
+//                    System.out.print("Enter the name of the file you want to load: ");
+//                    String fileName = scanner.nextLine();
+//                    lastId = loadBook(addressBook, dataPath + "/" + fileName);
+//                    if(lastId == -1)
+//                        lastId = addressBook.getRecords().get(addressBook.getRecords().size() - 1).getId();
+//                    break;
 
-                case 3:
+                case 2:
                     clearScreen();
                     System.out.println("Save to file");
                     System.out.print("Enter the name of the file you want to save to: ");
@@ -309,7 +295,7 @@ public class Main {
                     saveBook(addressBook, dataPath + "/" + fileName2);
                     break;
 
-                case 4:
+                case 3:
                     clearScreen();
                     System.out.println("Add entry");
                     String firstName, lastName, address, phone, email;
@@ -328,7 +314,7 @@ public class Main {
                     addressBook.addRecord(record3);
                     break;
 
-                case 5:
+                case 4:
                     clearScreen();
                     System.out.println("Print book");
                     for(Record rec : addressBook.getRecords()) {
@@ -336,31 +322,31 @@ public class Main {
                     }
                     break;
 
-                case 6:
+                case 5:
                     clearScreen();
                     System.out.println("Remove entry");
                     System.out.println("Not implemented yet");
                     break;
 
-                case 7:
+                case 6:
                     clearScreen();
                     System.out.println("Edit entry");
                     System.out.println("Not implemented yet");
                     break;
 
-                case 8:
+                case 7:
                     clearScreen();
                     System.out.println("Sort the address book");
                     System.out.println("Not implemented yet");
                     break;
 
-                case 9:
+                case 8:
                     clearScreen();
                     System.out.println("Search for a specific entry");
                     System.out.println("Not implemented yet");
                     break;
 
-                case 10:
+                case 9:
                     clearScreen();
                     System.out.println("Quit");
                     System.out.println("Saving the address book...");
@@ -374,6 +360,6 @@ public class Main {
             }
             System.out.println("Press enter to continue...");
             scanner.nextLine();
-        }while(option != 10);
+        }while(option != 9);
     }
 }
