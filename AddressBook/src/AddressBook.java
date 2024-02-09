@@ -15,4 +15,8 @@ public class AddressBook {
     public ArrayList<Record> getRecords() {
         return records;
     }
+
+    public void clear() {
+        records.clear();
+    }
 }

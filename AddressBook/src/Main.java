@@ -44,6 +44,7 @@ public class Main {
     static int loadBook(AddressBook addressBook, String fileName) {
         try{
             Scanner fileScanner = new Scanner(new FileReader(fileName));
+            addressBook.clear();
             while(fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine();
                 String[] data = line.split(",");
@@ -107,7 +108,7 @@ public class Main {
             System.out.println("No address books found");
             return Optional.empty();
         }
-        System.out.println(books.get());
+        System.out.print(books.get());
         String bookName = scanner.nextLine();
         //check if file exists
         File file = new File(dataPath + "/" + bookName);
@@ -183,7 +184,7 @@ public class Main {
                                 if(newBook.createNewFile()) {
                                     System.out.println("Created address book " + newBookName + " and switched to it");
                                     saveBook(addressBook, dataPath + "/" + currentBookName);
-//                                    lastId = loadBook(addressBook, dataPath + "/" + newBookName);
+                                    addressBook.clear();
                                     lastId = 0;
                                     currentBookName = newBookName;
                                 }
@@ -272,9 +273,15 @@ public class Main {
 //                            }
 //                            else
 //                                System.out.println("Address book not found");
+                            clearScreen();
                             System.out.println("Switch current address book");
                             saveBook(addressBook, dataPath + "/" + currentBookName);
-                            currentBookName = chooseBook(addressBook, dataPath).orElse(currentBookName);
+//                            currentBookName = chooseBook(addressBook, dataPath).orElse(currentBookName);
+                            String bookName2 = chooseBook(addressBook, dataPath).orElse(currentBookName);
+                            if(!bookName2.equals(currentBookName)) {
+                                currentBookName = bookName2;
+                                lastId = addressBook.getRecords().get(addressBook.getRecords().size() - 1).getId();
+                            }
                             break;
 
                         case 6:
@@ -290,6 +297,8 @@ public class Main {
                     System.out.print("Enter the name of the file you want to load: ");
                     String fileName = scanner.nextLine();
                     lastId = loadBook(addressBook, dataPath + "/" + fileName);
+                    if(lastId == -1)
+                        lastId = addressBook.getRecords().get(addressBook.getRecords().size() - 1).getId();
                     break;
 
                 case 3:
